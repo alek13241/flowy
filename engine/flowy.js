@@ -299,13 +299,19 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 for (var w = 0; w < blockstemp.length; w++) {
                     if (blockstemp[w].id != parseInt(drag.querySelector(".blockid").value)) {
                         const blockParent = document.querySelector(".blockid[value='" + blockstemp[w].id + "']").parentNode;
-                        const arrowParent = document.querySelector(".arrowid[value='" + blockstemp[w].id + "']").parentNode;
                         blockParent.style.left = (blockParent.getBoundingClientRect().left + window.scrollX) - (window.scrollX) + canvas_div.scrollLeft - 1 - absx + "px";
                         blockParent.style.top = (blockParent.getBoundingClientRect().top + window.scrollY) - (window.scrollY) + canvas_div.scrollTop - absy - 1 + "px";
-                        arrowParent.style.left = (arrowParent.getBoundingClientRect().left + window.scrollX) - (window.scrollX) + canvas_div.scrollLeft - absx - 1 + "px";
-                        arrowParent.style.top = (arrowParent.getBoundingClientRect().top + window.scrollY) + canvas_div.scrollTop - 1 - absy + "px";
                         canvas_div.appendChild(blockParent);
-                        canvas_div.appendChild(arrowParent);
+
+                        let currentBlockParents = blockstemp[w].parent;
+                        currentBlockParents = currentBlockParents.filter((blockParent) => blockstemp.some((blocktemp) => blocktemp.id == blockParent) >= 0)
+                        for (var j = 0; j < currentBlockParents.length; j ++) {
+                            const arrowid = blockstemp[w].id + '_' + currentBlockParents[j]
+                            const arrowParent = document.querySelector(".arrowid[value='" + arrowid + "']").parentNode;
+                            arrowParent.style.left = (arrowParent.getBoundingClientRect().left + window.scrollX) - (window.scrollX) + canvas_div.scrollLeft - absx - 1 + "px";
+                            arrowParent.style.top = (arrowParent.getBoundingClientRect().top + window.scrollY) + canvas_div.scrollTop - 1 - absy + "px";
+                            canvas_div.appendChild(arrowParent);
+                        }
                         blockstemp[w].x = (blockParent.getBoundingClientRect().left + window.scrollX) + (parseInt(blockParent.offsetWidth) / 2) + canvas_div.scrollLeft - canvas_div.getBoundingClientRect().left - 1;
                         blockstemp[w].y = (blockParent.getBoundingClientRect().top + window.scrollY) + (parseInt(blockParent.offsetHeight) / 2) + canvas_div.scrollTop - canvas_div.getBoundingClientRect().top - 1;
                     }
@@ -388,7 +394,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                         let currentBlockParents = blockstemp[w].parent;
                         currentBlockParents = currentBlockParents.filter((blockParent) => blockstemp.some((blocktemp) => blocktemp.id == blockParent) >= 0)
                         for (var j = 0; j < currentBlockParents.length; j ++) {
-                            const arrowid = blockstemp[w].id + '_' + currentBlockParents[i]
+                            const arrowid = blockstemp[w].id + '_' + currentBlockParents[j]
                             const arrowParent = document.querySelector(".arrowid[value='" + arrowid + "']").parentNode;
                             arrowParent.style.left = (arrowParent.getBoundingClientRect().left + window.scrollX) - (window.scrollX + canvas_div.getBoundingClientRect().left) + canvas_div.scrollLeft + 20 + "px";
                             arrowParent.style.top = (arrowParent.getBoundingClientRect().top + window.scrollY) - (window.scrollY + canvas_div.getBoundingClientRect().top) + canvas_div.scrollTop + "px";
@@ -405,6 +411,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 const currentblock = blocks.filter((id) => id.id == drag.querySelector(".blockid").value)[0]
                 if (currentblock.parent.indexOf(blocko[i]) === -1) {
                     currentblock.parent.push(blocko[i])
+                } else {
+                    return
                 }
             } else {
                 blocks.push({
@@ -421,7 +429,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             var arrowblock = blocks.filter(a => a.id == parseInt(drag.querySelector(".blockid").value))[0];
             const parentblock = blocks.filter(a => a.id == blocko[i])[0]
             var arrowx = arrowblock.x - parentblock.x + 20;
-            var arrowy = arrowblock.y - parentblock.y - arrowblock.height;
+            var arrowy = arrowblock.y - parentblock.y - ((parentblock.height + arrowblock.height) / 2);
             drawArrow(arrowblock, blocko[i], arrowx, arrowy, blocko[i]);
             
             if (!connecting) {
@@ -673,13 +681,18 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 var blocko = blocks.map(a => a.id);
                 for (var w = 0; w < blocks.length; w++) {
                     document.querySelector(".blockid[value='" + blocks.filter(a => a.id == blocko[w])[0].id + "']").parentNode.style.left = blocks.filter(a => a.id == blocko[w])[0].x - (blocks.filter(a => a.id == blocko[w])[0].width / 2) - offsetleft + canvas_div.getBoundingClientRect().left - absx + 20 + "px";
-                    if (blocks.filter(a => a.id == blocko[w])[0].parent != -1) {
+                    if (blocks.filter(a => a.id == blocko[w])[0].parent[0] != -1) {
                         var arrowblock = blocks.filter(a => a.id == blocko[w])[0];
-                        var arrowx = arrowblock.x - blocks.filter(a => a.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x;
-                        if (arrowx < 0) {
-                            document.querySelector('.arrowid[value="' + blocko[w] + '"]').parentNode.style.left = (arrowblock.x - offsetleft + 20 - 5) + canvas_div.getBoundingClientRect().left - absx + "px";
-                        } else {
-                            document.querySelector('.arrowid[value="' + blocko[w] + '"]').parentNode.style.left = blocks.filter(id => id.id == blocks.filter(a => a.id == blocko[w])[0].parent)[0].x - 20 - offsetleft + canvas_div.getBoundingClientRect().left - absx + 20 + "px";
+                        const parents = arrowblock.parent;
+                        for (var i = 0; i < parents.length; i ++) {
+                            const parentBlock = blocks.filter(a => a.id == parents[i])[0]
+                            var arrowx = arrowblock.x - parentBlock.x;
+                            var arrowid = blocko[w] + '_' + parentBlock.id
+                            if (arrowx < 0) {
+                                document.querySelector('.arrowid[value="' + arrowid + '"]').parentNode.style.left = (arrowblock.x - offsetleft + 20 - 5) + canvas_div.getBoundingClientRect().left - absx + "px";
+                            } else {
+                                document.querySelector('.arrowid[value="' + arrowid + '"]').parentNode.style.left = parentBlock.x - 20 - offsetleft + canvas_div.getBoundingClientRect().left - absx + 20 + "px";
+                            }
                         }
                     }
                 }
@@ -740,8 +753,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                         var arrowblock = blocks.filter(a => a.id == children.id)[0];
                         const parentblock = blocks.filter(a => a.id == children.parent[x])[0]
                         var arrowx = arrowblock.x - parentblock.x + 20;
-                        var arrowy = arrowblock.y - parentblock.y - arrowblock.height;
-                        // var arrowy = paddingy;
+                        var arrowy = arrowblock.y - parentblock.y - ((parentblock.height + arrowblock.height) / 2);
                         updateArrow(arrowblock, children.parent[x], arrowx, arrowy, children);
                     }
                 }
