@@ -49,11 +49,11 @@ document.addEventListener("DOMContentLoaded", function(){
         } else if (drag.querySelector(".blockelemtype").value == "11") {
             drag.innerHTML += "<div class='blockycontainer'><div class='blockyleft'><img src='assets/errorred.svg'><p class='blockyname'>Prompt an error</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Trigger <span>Error 1</span></div></div>";
         } else if (drag.querySelector(".blockelemtype").value == "12") {
-            drag.innerHTML += "<div class='blockycontainer'><div class='blockyleft'><img src='assets/actionblue.svg'><p class='blockyname'>If/Else</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Check <span>Condition</span></div></div>";
+            drag.innerHTML += "<div class='blockycontainer' strictchild='true'><div class='blockyleft'><img src='assets/actionblue.svg'><p class='blockyname'>If/Else</p></div><div class='blockyright'><img src='assets/more.svg'></div><div class='blockydiv'></div><div class='blockyinfo'>Check <span>Condition</span></div></div>";
         } else if (drag.querySelector(".blockelemtype").value == "13") {
-            drag.innerHTML += "<div class='blockycontainer'><div class='blockyleft'><p class='blockyname'>Yes</p></div></div>";
+            drag.innerHTML += "<div class='blockycontainer' movedisabled='true'><div class='blockyleft'><p class='blockyname'>Yes</p></div></div>";
         } else if (drag.querySelector(".blockelemtype").value == "14") {
-            drag.innerHTML += "<div class='blockycontainer'><div class='blockyleft'><p class='blockyname'>No</p></div></div>";
+            drag.innerHTML += "<div class='blockycontainer' movedisabled='true'><div class='blockyleft'><p class='blockyname'>No</p></div></div>";
         }
         return true;
     }

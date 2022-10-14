@@ -260,6 +260,11 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         function checkAttach(id) {
             const xpos = (drag.getBoundingClientRect().left + window.scrollX) + (parseInt(window.getComputedStyle(drag).width) / 2) + canvas_div.scrollLeft - canvas_div.getBoundingClientRect().left;
             const ypos = (drag.getBoundingClientRect().top + window.scrollY) + canvas_div.scrollTop - canvas_div.getBoundingClientRect().top;
+            const theblock = document.querySelector(".blockid[value='" + id + "']").parentNode;
+            var theblockElemContainer = theblock.querySelector(".blockycontainer")
+            if (theblockElemContainer && theblockElemContainer.getAttribute('strictchild') == 'true') {
+                return
+            }
             if (xpos >= blocks.filter(a => a.id == id)[0].x - (blocks.filter(a => a.id == id)[0].width / 2) - paddingx && xpos <= blocks.filter(a => a.id == id)[0].x + (blocks.filter(a => a.id == id)[0].width / 2) + paddingx && ypos >= blocks.filter(a => a.id == id)[0].y - (blocks.filter(a => a.id == id)[0].height / 2) && ypos <= blocks.filter(a => a.id == id)[0].y + blocks.filter(a => a.id == id)[0].height) {
                 return true;   
             } else {
@@ -475,6 +480,10 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 }
             } else if (hasParentClass(event.target, "block")) {
                 var theblock = event.target.closest(".block");
+                var theblockElemContainer = theblock.querySelector(".blockycontainer")
+                if (theblockElemContainer && theblockElemContainer.getAttribute('movedisabled') == 'true') {
+                    return
+                }
                 if (event.targetTouches) {
                     mouse_x = event.targetTouches[0].clientX;
                     mouse_y = event.targetTouches[0].clientY;
@@ -507,6 +516,10 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 }
 
                 if (!dragindicator && !dragblock && !active && !rearrange) {
+                    var theblockElemContainer = theblock.querySelector(".blockycontainer")
+                    if (theblockElemContainer && theblockElemContainer.getAttribute('strictchild') == 'true') {
+                        return
+                    }
                     const theblockBottom = theblock.getBoundingClientRect().bottom;
                     if (Math.abs(mouse_y - theblockBottom) < 10) {
                         theblock.appendChild(document.querySelector(".indicator"));
