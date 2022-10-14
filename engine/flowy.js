@@ -163,9 +163,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         }
 
         flowy.endDrag = function(event) {
-            console.log('checking current action', dragindicator)
             if (event.which != 3 && dragindicator) {
-                console.log('checking indicator drag')
                 dragindicator = false
                 connecting = true
                 blockReleased();
@@ -203,6 +201,23 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                             active = false;
                             if (blockSnap(drag, false, document.querySelector(".blockid[value='" + blocko[i] + "']").parentNode)) {
                                 snap(drag, i, blocko);
+                                const dragChildren = drag.querySelector(".blockchildren")
+                                if (dragChildren) {
+                                    const blockChildren = dragChildren.value.split(',').map((id) => parseInt(id.trim()))
+                                    var index = blocks.length - 1;
+                                    var dragId = drag.querySelector(".blockid").value
+                                    for (const blockChild of blockChildren) {
+                                        var blocko = blocks.map(a => a.id);
+                                        dragId ++;
+                                        console.log(blockChild)
+                                        drag.querySelector(".blockid").value = dragId
+                                        drag.querySelector(".blockelemtype").value = blockChild
+                                        if (blockSnap(drag, false, document.querySelector(".blockid[value='" + index + "']").parentNode)){
+                                            snap(drag, index, blocko)
+                                        }
+                                    }
+                                }
+                                
                             } else {
                                 active = false;
                                 removeSelection();
@@ -402,7 +417,6 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             const parentblock = blocks.filter(a => a.id == blocko[i])[0]
             var arrowx = arrowblock.x - parentblock.x + 20;
             var arrowy = arrowblock.y - parentblock.y - arrowblock.height;
-            console.log(arrowblock, parentblock, arrowy)
             drawArrow(arrowblock, blocko[i], arrowx, arrowy, blocko[i]);
             
             if (!connecting) {
