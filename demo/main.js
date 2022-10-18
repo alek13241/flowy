@@ -65,8 +65,6 @@ document.addEventListener("DOMContentLoaded", function(){
         if (tempblock2) {
             tempblock2.classList.remove("blockdisabled");
         }
-
-        console.log(flowy.output())
     }
     var disabledClick = function(){
         document.querySelector(".navactive").classList.add("navdisabled");

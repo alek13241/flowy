@@ -66,7 +66,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
 
         var dragblock = false;
         var dragindicator = false;
-        var dargindicatorblock = 0;
+        var dragindicatorblock = 0;
         var connecting = false
         
         flowy.import = function(output) {
@@ -173,9 +173,9 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 if (hasParentClass(event.target, 'block')) {
                     const theblock = event.target.closest(".block");
                     const blockid = theblock.querySelector('.blockid').value;
-                    if (blockid !== dargindicatorblock) {
+                    if (blockid !== dragindicatorblock && theblock.querySelector('.blockycontainer').getAttribute('movedisabled') != 'true') {
                         var blocko = blocks.map(a => a.id);
-                        snap(theblock, dargindicatorblock, blocko);
+                        snap(theblock, dragindicatorblock, blocko);
                     }
                 }
             } else if (event.which != 3 && (active || rearrange)) {
@@ -192,6 +192,23 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     firstBlock("rearrange")    
                 } else if (active && blocks.length == 0 && (drag.getBoundingClientRect().top + window.scrollY) > (canvas_div.getBoundingClientRect().top + window.scrollY) && (drag.getBoundingClientRect().left + window.scrollX) > (canvas_div.getBoundingClientRect().left + window.scrollX)) {
                     firstBlock("drop");
+                    drag = drag.cloneNode(true)
+                    const dragChildren = drag.querySelector(".blockchildren")
+                    var blocko = blocks.map(a => a.id);
+                    if (dragChildren) {
+                        const blockChildren = dragChildren.value.split(',').map((id) => parseInt(id.trim()))
+                        var index = blocks.length - 1;
+                        var dragId = drag.querySelector(".blockid").value
+                        for (const blockChild of blockChildren) {
+                            var blocko = blocks.map(a => a.id);
+                            dragId ++;
+                            drag.querySelector(".blockid").value = dragId
+                            drag.querySelector(".blockelemtype").value = blockChild
+                            if (blockSnap(drag, false, canvas_div)){
+                                snap(drag, index, blocko)
+                            }
+                        }
+                    }
                 } else if (active && blocks.length == 0) {
                     removeSelection();
                 } else if (active) {
@@ -209,7 +226,6 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                                     for (const blockChild of blockChildren) {
                                         var blocko = blocks.map(a => a.id);
                                         dragId ++;
-                                        console.log(blockChild)
                                         drag.querySelector(".blockid").value = dragId
                                         drag.querySelector(".blockelemtype").value = blockChild
                                         if (blockSnap(drag, false, document.querySelector(".blockid[value='" + index + "']").parentNode)){
@@ -479,11 +495,10 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             dragblock = false;
             if (hasParentClass(event.target, "indicator")) {
                 if (event.type !== "mouseup" && event.which != 3) {
-                    console.log('checking current status', active, rearrange, dragblock)
                     if (!active && !rearrange && !dragblock) {
                         dragindicator = true;
                         var theblock = event.target.closest(".block");
-                        dargindicatorblock = theblock.querySelector('.blockid').value
+                        dragindicatorblock = theblock.querySelector('.blockid').value
                     }
                 }
             } else if (hasParentClass(event.target, "block")) {
@@ -540,9 +555,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         }
 
         function mouseleaveblock(event) {
-            console.log(event)
             if (hasParentClass(event.target, "block")) {
-                console.log('find block')
                 if (!document.querySelector(".indicator").classList.contains("invisible")) {
                     document.querySelector(".indicator").classList.add("invisible");
                 }
