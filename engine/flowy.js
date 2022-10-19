@@ -44,6 +44,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         var blocks = [];
         var blockstemp = [];
         var canvas_div = canvas;
+        var space_div = null;
         var absx = 0;
         var absy = 0;
         if (window.getComputedStyle(canvas_div).position == "absolute" || window.getComputedStyle(canvas_div).position == "fixed") {
@@ -300,6 +301,10 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             if (type == "drop") {
                 blockSnap(drag, true, undefined);
                 active = false;
+                space_div = document.createElement('div')
+                space_div.classList.add('bottomspacewrap');
+                canvas_div.appendChild(space_div);
+
                 drag.style.top = (drag.getBoundingClientRect().top + window.scrollY) - (absy + window.scrollY) + canvas_div.scrollTop + "px";
                 drag.style.left = (drag.getBoundingClientRect().left + window.scrollX) - (absx + window.scrollX) + canvas_div.scrollLeft + "px";
                 canvas_div.appendChild(drag);
@@ -783,7 +788,6 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 }
                 var totalwidth = 0;
                 var totalremove = 0;
-                var maxheight = 0;
                 for (var w = 0; w < blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0).length; w++) {
                     var children = blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0)[w];
                     if (blocks.filter(id => id.parent.indexOf(children.id) >= 0).length == 0) {
@@ -831,6 +835,20 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     }
                 }
             }
+
+            var maxy = 0;
+
+            for (var z = 0; z < blocks.length; z++) {
+                if (blocks[z].y > maxy) {
+                    maxy = blocks[z].y
+                }
+            }
+
+            console.log('maxy', maxy)
+            
+            space_div = canvas_div.querySelector('.bottomspacewrap');
+            space_div.style.top = (maxy + 100) + 'px';
+            console.log(space_div)
         }
         
         document.addEventListener("mousedown", flowy.beginDrag);
