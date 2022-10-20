@@ -323,6 +323,11 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     ifnode: ifnode
                 });
             } else if (type == "rearrange") {
+                var drag_boundrect = drag.getBoundingClientRect();
+                var canvas_boundrect = canvas_div.getBoundingClientRect();
+                if (drag_boundrect.left < canvas_boundrect.left) {
+                    drag.style.left = canvas_boundrect.left + 'px';
+                }
                 drag.classList.remove("dragging");
                 rearrange = false;
                 for (var w = 0; w < blockstemp.length; w++) {
@@ -843,12 +848,9 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     maxy = blocks[z].y
                 }
             }
-
-            console.log('maxy', maxy)
             
             space_div = canvas_div.querySelector('.bottomspacewrap');
             space_div.style.top = (maxy + 100) + 'px';
-            console.log(space_div)
         }
         
         document.addEventListener("mousedown", flowy.beginDrag);
