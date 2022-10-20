@@ -387,8 +387,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
             var totalremove = 0;
             var maxheight = 0;
             if (!connecting) {
-                for (var w = 0; w < blocks.filter(id => id.parent.indexOf(blocko[i]) >= 0).length; w++) {
-                    var children = blocks.filter(id => id.parent.indexOf(blocko[i]) >= 0)[w];
+                for (var w = 0; w < blocks.filter(id => id.parent[0] == blocko[i]).length; w++) {
+                    var children = blocks.filter(id => id.parent[0] == blocko[i])[w];
                     if (children.childwidth > children.width) {
                         totalwidth += children.childwidth + paddingx;
                     } else {
@@ -396,15 +396,15 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                     }
                 }
                 totalwidth += parseInt(window.getComputedStyle(drag).width);
-                for (var w = 0; w < blocks.filter(id => id.parent.indexOf(blocko[i]) >= 0).length; w++) {
-                    var children = blocks.filter(id => id.parent.indexOf(blocko[i]) >= 0)[w];
+                for (var w = 0; w < blocks.filter(id => id.parent[0] == blocko[i]).length; w++) {
+                    var children = blocks.filter(id => id.parent[0] == blocko[i])[w];
                     if (children.childwidth > children.width) {
                         document.querySelector(".blockid[value='" + children.id + "']").parentNode.style.left = blocks.filter(a => a.id == blocko[i])[0].x - (totalwidth / 2) + totalremove + (children.childwidth / 2) - (children.width / 2) + "px";
-                        children.x = blocks.filter(id => id.parent.indexOf(blocko[i]) >= 0)[0].x - (totalwidth / 2) + totalremove + (children.childwidth / 2);
+                        children.x = blocks.filter(id => id.parent[0] == blocko[i])[0].x - (totalwidth / 2) + totalremove + (children.childwidth / 2);
                         totalremove += children.childwidth + paddingx;
                     } else {
                         document.querySelector(".blockid[value='" + children.id + "']").parentNode.style.left = blocks.filter(a => a.id == blocko[i])[0].x - (totalwidth / 2) + totalremove + "px";
-                        children.x = blocks.filter(id => id.parent.indexOf(blocko[i]) >= 0)[0].x - (totalwidth / 2) + totalremove + (children.width / 2);
+                        children.x = blocks.filter(id => id.parent[0] == blocko[i])[0].x - (totalwidth / 2) + totalremove + (children.width / 2);
                         totalremove += children.width + paddingx;
                     }
                 }
@@ -485,16 +485,16 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                             flag = true;
                         } else {
                             var zwidth = 0;
-                            for (var w = 0; w < blocks.filter(id => id.parent.indexOf(idval) >= 0).length; w++) {
-                                var children = blocks.filter(id => id.parent.indexOf(idval) >= 0)[w];
+                            for (var w = 0; w < blocks.filter(id => id.parent[0] == idval).length; w++) {
+                                var children = blocks.filter(id => id.parent[0] == idval)[w];
                                 if (children.childwidth > children.width) {
-                                    if (w == blocks.filter(id => id.parent.indexOf(idval) >= 0).length - 1) {
+                                    if (w == blocks.filter(id => id.parent[0] == idval).length - 1) {
                                         zwidth += children.childwidth;
                                     } else {
                                         zwidth += children.childwidth + paddingx;
                                     }
                                 } else {
-                                    if (w == blocks.filter(id => id.parent.indexOf(idval) >= 0).length - 1) {
+                                    if (w == blocks.filter(id => id.parent[0] == idval).length - 1) {
                                         zwidth += children.width;
                                     } else {
                                         zwidth += children.width + paddingx;
@@ -786,39 +786,40 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
         }
 
         function rearrangeMe() {
-            var result = blocks.map(a => a.parent);
+            var result = blocks.map(a => a.parent[0]);
             for (var z = 0; z < result.length; z++) {
-                if (result[z][0] == -1) {
+                if (result[z] == -1) {
                     z++;
                 }
                 var totalwidth = 0;
                 var totalremove = 0;
-                for (var w = 0; w < blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0).length; w++) {
-                    var children = blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0)[w];
-                    if (blocks.filter(id => id.parent.indexOf(children.id) >= 0).length == 0) {
+                for (var w = 0; w < blocks.filter(id => id.parent[0] == result[z]).length; w++) {
+                    var children = blocks.filter(id => id.parent[0] == result[z])[w];
+                    if (blocks.filter(id => id.parent[0] == children.id).length == 0) {
                         children.childwidth = 0;
                     }
                     if (children.childwidth > children.width) {
-                        if (w == blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0).length - 1) {
+                        if (w == blocks.filter(id => id.parent[0] == result[z]).length - 1) {
                             totalwidth += children.childwidth;
                         } else {
                             totalwidth += children.childwidth + paddingx;
                         }
                     } else {
-                        if (w == blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0).length - 1) {
+                        if (w == blocks.filter(id => id.parent[0] == result[z]).length - 1) {
                             totalwidth += children.width;
                         } else {
                             totalwidth += children.width + paddingx;
                         }
                     }
                 }
-                if (result[z][0] != -1) {
-                    blocks.filter(a => a.id == result[z][0])[0].childwidth = totalwidth;
+                console.log('totalwidth', result[z], totalwidth)
+                if (result[z] != -1) {
+                    blocks.filter(a => a.id == result[z])[0].childwidth = totalwidth;
                 }
-                for (var w = 0; w < blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0).length; w++) {
-                    var children = blocks.filter(id => id.parent.indexOf(result[z][0]) >= 0)[w];
+                for (var w = 0; w < blocks.filter(id => id.parent[0] == result[z]).length; w++) {
+                    var children = blocks.filter(id => id.parent[0] == result[z])[w];
                     const r_block = document.querySelector(".blockid[value='" + children.id + "']").parentNode;
-                    const r_array = blocks.filter(id => id.id == result[z][0]);
+                    const r_array = blocks.filter(id => id.id == result[z]);
                     r_block.style.top = r_array.y + paddingy + canvas_div.getBoundingClientRect().top - absy + "px";
                     r_array.y = r_array.y + paddingy;
                     if (children.childwidth > children.width) {
