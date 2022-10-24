@@ -710,6 +710,22 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                         return e.id != blocknumber
                     });
                 }
+                const checkingIds = [...allids, blockid];
+                for (var i = 0; i < checkingIds.length; i ++) {
+                    var block = blockstemp.filter(((blocktmp) => blocktmp.id === checkingIds[i]))[0]
+                    var parents = block.parent;
+                    var connectedParents = parents.filter((parent) => checkingIds.indexOf(parent) >= 0)
+                    var notConnectedParents = parents.filter((parent) => checkingIds.indexOf(parent) === -1)
+                    for (var j = 0; j < notConnectedParents.length; j ++) {
+                        const arrowid = checkingIds[i] + '_' + notConnectedParents[j]
+                        const arrow = document.querySelector(".arrowid[value='" + arrowid + "']")
+                        if (arrow) {
+                            const arrowParent = document.querySelector(".arrowid[value='" + arrowid + "']").parentNode;
+                            drag.removeChild(arrowParent)
+                        }
+                    }
+                    block.parent = connectedParents;
+                }
                 if (blocks.length > 1) {
                     rearrangeMe();
                 }
@@ -812,7 +828,6 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                         }
                     }
                 }
-                console.log('totalwidth', result[z], totalwidth)
                 if (result[z] != -1) {
                     blocks.filter(a => a.id == result[z])[0].childwidth = totalwidth;
                 }
