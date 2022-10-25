@@ -714,7 +714,7 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 for (var i = 0; i < checkingIds.length; i ++) {
                     var block = blockstemp.filter(((blocktmp) => blocktmp.id === checkingIds[i]))[0]
                     var parents = block.parent;
-                    var connectedParents = parents.filter((parent) => checkingIds.indexOf(parent) >= 0)
+                    var connectedParents = parents.filter((parent) => checkingIds.indexOf(parent) >= 0 || parent === -1)
                     var notConnectedParents = parents.filter((parent) => checkingIds.indexOf(parent) === -1)
                     for (var j = 0; j < notConnectedParents.length; j ++) {
                         const arrowid = checkingIds[i] + '_' + notConnectedParents[j]
@@ -831,8 +831,8 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                 if (result[z] != -1) {
                     blocks.filter(a => a.id == result[z])[0].childwidth = totalwidth;
                 }
-                for (var w = 0; w < blocks.filter(id => id.parent[0] == result[z]).length; w++) {
-                    var children = blocks.filter(id => id.parent[0] == result[z])[w];
+                for (var w = 0; w < blocks.filter(id => id.parent.indexOf(result[z]) > -1).length; w++) {
+                    var children = blocks.filter(id => id.parent.indexOf(result[z]) > -1)[w];
                     const r_block = document.querySelector(".blockid[value='" + children.id + "']").parentNode;
                     const r_array = blocks.filter(id => id.id == result[z]);
                     r_block.style.top = r_array.y + paddingy + canvas_div.getBoundingClientRect().top - absy + "px";
@@ -846,7 +846,14 @@ var flowy = function(canvas, grab, release, snapping, rearrange, spacing_x, spac
                         children.x = r_array[0].x - (totalwidth / 2) + totalremove + (children.width / 2);
                         totalremove += children.width + paddingx;
                     }
+                }
+            }
 
+            for (var y = 0; y < blocks.length; y ++) {
+                if (blocks[y].parent[0] === -1) {
+                    continue
+                } else {
+                    var children = blocks[y];
                     for (let x = 0; x < children.parent.length; x ++) {
                         var arrowblock = blocks.filter(a => a.id == children.id)[0];
                         const parentblock = blocks.filter(a => a.id == children.parent[x])[0]
